@@ -1,0 +1,93 @@
+/* You can add global styles to this file, and also import other style files */
+/* styles.css */
+/* Dark mode (default) */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: #ffffff;
+  color: #000000;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 200px;
+  background: #f4f4f4;
+  padding: 10px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.sidebar li.active {
+  background: #ddd;
+  font-weight: bold;
+}
+
+.editor {
+  flex: 1;
+  padding: 10px;
+}
+
+/* Dark mode */
+.dark-mode {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+.dark-mode .sidebar {
+  background: #1e1e1e;
+}
+
+.dark-mode .sidebar li {
+  color: #e0e0e0;
+}
+
+.dark-mode .sidebar li.active {
+  background: #333;
+}
+
+.dark-mode .editor {
+  background: #1e1e1e;
+}
+
+.dark-mode textarea {
+  background: #2c2c2c;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+/* Delete Note */
+.delete-btn {
+  margin-left: 10px;
+  background: transparent;
+  border: none;
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.delete-btn:hover {
+  color: darkred;
+}
+
+/* Dark mode button styles */
+.dark-mode .sidebar button {
+  background: #333;
+  color: #e0e0e0;
+}
+
+.editor textarea:focus {
+  outline: none;   /* removes the blue border */
+}

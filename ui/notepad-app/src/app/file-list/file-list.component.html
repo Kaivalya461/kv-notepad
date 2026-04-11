@@ -1,0 +1,13 @@
+<!-- file-list.component.html -->
+<div class="sidebar">
+  <button (click)="onNewFile()">New File</button>
+  <ul>
+    <li *ngFor="let file of (files | keyvalue)"
+        [class.active]="file.key === activeFile">
+      <span (click)="onSelect(file.key)">
+        {{ file.key }}
+      </span>
+      <button class="delete-btn" (click)="onDelete(file.key)">X</button>
+    </li>
+  </ul>
+</div>

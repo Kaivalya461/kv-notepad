@@ -1,0 +1,47 @@
+/* Dark Mode Toggle button CSS starts here */
+.darkmode-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.4s;
+  font-size: 20px;
+}
+
+input:checked + .slider {
+  background-color: #444; /* dark background when active */
+}
+
+.icon {
+  pointer-events: none; /* prevent accidental clicks */
+}
+
+.darkmode-toggle .icon {
+  user-select: none;   /* modern browsers */
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none;     /* old IE/Edge */
+}
+/* Dark Mode Toggle button CSS ends here */

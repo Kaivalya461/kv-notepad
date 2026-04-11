@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "angular-build": "cd ../notepad-app && ng build --output-path=../express-server/dist/notepad-app",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0"
+  }
+}

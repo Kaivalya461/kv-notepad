@@ -1,0 +1,25 @@
+<!-- notepad.component.html -->
+<div class="container" [class.dark-mode]="isDarkMode">
+  <app-file-list
+    [files]="files"
+    [activeFile]="activeFile"
+    (selectFile)="handleSelectFile($event)"
+    (newFile)="handleNewFile()"
+    (deleteFile)="handleDeleteFile($event)">
+  </app-file-list>
+
+  <app-editor
+    [noteText]="noteText"
+    (noteChange)="handleNoteChange($event)">
+  </app-editor>
+
+  <!-- Sun/Moon toggle bottom-right -->
+  <div class="darkmode-toggle">
+    <label class="switch">
+      <input type="checkbox" [(ngModel)]="isDarkMode">
+      <span class="slider">
+        <span class="icon">{{ isDarkMode ? '🌙' : '🌞' }}</span>
+      </span>
+    </label>
+  </div>
+</div>
