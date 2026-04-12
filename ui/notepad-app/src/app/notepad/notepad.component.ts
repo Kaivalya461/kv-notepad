@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EditorComponent } from '../editor/editor.component';
 import { FileListComponent } from '../file-list/file-list.component';
@@ -22,32 +22,53 @@ export class NotepadComponent implements OnInit {
   noteCounter: number = 0;   // <-- track number of notes
   isDarkMode = true;
 
+  @ViewChild(EditorComponent) editor!: EditorComponent;
+
   ngOnInit(): void {
+    this.loadData();
+    this.ensureActiveNote();
+  }
+
+  /** Load saved data from localStorage */
+  private loadData() {
     const savedData = localStorage.getItem('notepadData');
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      this.files = parsed.files || {};
-      this.activeFile = parsed.activeFile || null;
-    
-      // Determine highest note number from existing filenames
-      const noteNumbers = Object.keys(this.files)
-        .map(name => {
-          const match = name.match(/^note(\d+)$/);
-          return match ? parseInt(match[1], 10) : 0;
-        });
-      this.noteCounter = noteNumbers.length ? Math.max(...noteNumbers) : 0;
-      
-      if (this.activeFile) {
-        this.noteText = this.files[this.activeFile];
-      }
+    if (!savedData) return;
+
+    const parsed = JSON.parse(savedData);
+    this.files = parsed.files || {};
+    this.activeFile = parsed.activeFile || null;
+    this.noteCounter = this.computeNoteCounter(parsed);
+
+    if (this.activeFile && this.files[this.activeFile]) {
+      this.noteText = this.files[this.activeFile];
     }
   }
 
+  /** Compute the highest note number from filenames or fallback to saved counter */
+  private computeNoteCounter(parsed: any): number {
+    const noteNumbers = Object.keys(this.files)
+      .map(name => {
+        const match = name.match(/^note(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      });
+    return noteNumbers.length ? Math.max(...noteNumbers) : parsed.noteCounter || 0;
+  }
+
+  /** Ensure there is always at least one active note */
+  private ensureActiveNote() {
+    console.log("this.files status---> " + Object.keys(this.files).length);
+    if (!Object.keys(this.files).length || !this.activeFile) {
+      this.handleNewFile();
+    }
+  }
 
   handleSelectFile(filename: string) {
     this.activeFile = filename;
     this.noteText = this.files[filename];
     this.saveData();
+
+    // Focus textarea after selecting a file
+    setTimeout(() => this.editor.focusTextarea(), 1000);
   }
 
   handleNewFile() {
@@ -57,6 +78,10 @@ export class NotepadComponent implements OnInit {
     this.activeFile = filename;
     this.noteText = '';
     this.saveData();
+
+    // Focus textarea after creating new file.
+    // delay is needed as textArea html is not initlized in case of handleNewFile() called within EditorComponent.ngOnInit()
+    setTimeout(() => this.editor.focusTextarea(), 1000);
   }
 
   handleNoteChange(newText: string) {
@@ -90,5 +115,8 @@ export class NotepadComponent implements OnInit {
     }
 
     this.saveData();
+
+    // Focus textarea after deleting new file
+    setTimeout(() => this.editor.focusTextarea(), 1000);
   }
 }

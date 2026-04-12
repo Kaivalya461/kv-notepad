@@ -1,6 +1,7 @@
 <!-- editor.component.html -->
 <div class="editor">
-  <textarea [(ngModel)]="noteText"
+  <textarea #noteTextArea
+            [(ngModel)]="noteText"
             (ngModelChange)="onTextChange($event)"
             rows="40" cols="110"
             placeholder="Start typing..."></textarea>

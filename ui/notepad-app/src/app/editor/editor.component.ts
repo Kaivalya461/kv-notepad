@@ -1,5 +1,5 @@
 // editor.component.ts
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -9,9 +9,20 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css']
 })
-export class EditorComponent {
+export class EditorComponent implements AfterViewInit {
   @Input() noteText: string = '';
   @Output() noteChange = new EventEmitter<string>();
+
+  @ViewChild('noteTextArea') textarea!: ElementRef<HTMLTextAreaElement>;
+
+  ngAfterViewInit(): void {
+    // Focus the textarea once the view is initialized
+    this.focusTextarea();
+  }
+
+  focusTextarea() {
+    this.textarea.nativeElement.focus();
+  }
 
   onTextChange(value: string) {
     this.noteChange.emit(value);
