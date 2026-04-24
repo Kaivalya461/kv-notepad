@@ -27,4 +27,12 @@ export class EditorComponent implements AfterViewInit {
   onTextChange(value: string) {
     this.noteChange.emit(value);
   }
+
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      const spaces = '    ';
+      document.execCommand('insertText', false, spaces);
+    }
+  }
 }
