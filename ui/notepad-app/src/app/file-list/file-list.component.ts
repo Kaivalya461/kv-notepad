@@ -1,6 +1,7 @@
 // file-list.component.ts
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NoteData } from '../models/note-data.interface';
 
 @Component({
   selector: 'app-file-list',
@@ -10,7 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./file-list.component.css']
 })
 export class FileListComponent {
-  @Input() files: { [key: string]: string } = {};
+  @Input() files: Record<string, NoteData> = {};
   @Input() activeFile: string | null = null;
   @Output() selectFile = new EventEmitter<string>();
   @Output() newFile = new EventEmitter<void>();

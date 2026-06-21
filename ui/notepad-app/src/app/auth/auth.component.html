@@ -1,0 +1,35 @@
+<!-- auth.component.html -->
+<div class="auth-backdrop" *ngIf="isOpen" (click)="closeAuthDialog()"></div>
+
+<div class="auth-dialog" *ngIf="isOpen" [class.dark-mode]="isDarkMode">
+  <button class="close-btn" (click)="closeAuthDialog()">✖</button>
+
+  <h3>
+    Cloud Save
+    <mat-icon
+      class="info-icon"
+      matTooltip="Your notes are saved securely in the cloud when logged in. Only you can access them through the app. Note: Firebase project admins can still view all notes.">
+      info
+    </mat-icon>
+  </h3>
+
+  <!-- Show login/register form if no user -->
+  <form *ngIf="!user" (ngSubmit)="login()">
+    <input type="email" placeholder="Email" [(ngModel)]="email" name="email" required>
+    <input type="password" placeholder="Password" [(ngModel)]="password" name="password" required>
+
+    <div class="auth-actions">
+      <button type="submit">Login</button>
+      <button type="button" (click)="register()">Register</button>
+    </div>
+  </form>
+
+  <!-- Show user info + logout if logged in -->
+  <div *ngIf="user">
+    <p class="user-email">Logged in as: {{ user.email }}</p>
+    <p class="offline-msg" *ngIf="!isOnline">
+      Currently offline — saving locally only
+    </p>
+    <button type="button" (click)="logout()">Logout</button>
+  </div>
+</div>

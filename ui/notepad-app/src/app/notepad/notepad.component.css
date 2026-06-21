@@ -1,3 +1,4 @@
+/* notepad.component.css */
 /* Dark Mode Toggle button CSS starts here */
 .darkmode-toggle {
   position: fixed;
@@ -45,3 +46,30 @@ input:checked + .slider {
   -ms-user-select: none;     /* old IE/Edge */
 }
 /* Dark Mode Toggle button CSS ends here */
+
+/* Cloud-Save Toggle button CSS starts here */
+.cloud-btn {
+  position: relative;
+  /* margin-left: 10px; */
+  width: 60px;
+  height: 34px;
+  background-color: #ccc;
+  border: none;
+  border-radius: 34px;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.4s;
+}
+
+.cloud-btn:hover {
+  background-color: #aaa;
+}
+
+.dark-mode .cloud-btn {
+  background-color: #444;
+  color: #fff;
+}
+/* Cloud-Save Toggle button CSS ends here */

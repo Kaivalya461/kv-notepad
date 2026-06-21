@@ -1,11 +1,11 @@
-// editor.component.ts
+import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css']
 })
@@ -15,8 +15,9 @@ export class EditorComponent implements AfterViewInit {
 
   @ViewChild('noteTextArea') textarea!: ElementRef<HTMLTextAreaElement>;
 
+  readonly maxChars = 21000;
+
   ngAfterViewInit(): void {
-    // Focus the textarea once the view is initialized
     this.focusTextarea();
   }
 
@@ -25,7 +26,12 @@ export class EditorComponent implements AfterViewInit {
   }
 
   onTextChange(value: string) {
-    this.noteChange.emit(value);
+    // enforce max length
+    if (value.length > this.maxChars) {
+      value = value.substring(0, this.maxChars);
+    }
+    this.noteText = value;
+    this.noteChange.emit(this.noteText);
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -34,5 +40,12 @@ export class EditorComponent implements AfterViewInit {
       const spaces = '    ';
       document.execCommand('insertText', false, spaces);
     }
+
+    // block typing beyond maxChars
+    if (this.noteText.length >= this.maxChars &&
+        event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+    }
   }
+
 }
