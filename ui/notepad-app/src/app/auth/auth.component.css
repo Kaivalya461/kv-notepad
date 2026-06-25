@@ -1,0 +1,144 @@
+.auth-dialog {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  width: 250px;
+  z-index: 1000;
+  color: #000;
+}
+
+.auth-dialog h3 {
+  margin-top: 0;
+}
+
+.auth-dialog input {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 5px 0;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #000;
+}
+
+.auth-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.auth-actions button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #f4f4f4;
+  color: #000;
+}
+
+.auth-actions button:hover {
+  background-color: #ddd;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Dark mode overrides */
+.auth-dialog.dark-mode {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  color: #e0e0e0;
+}
+
+.auth-dialog.dark-mode input {
+  background: #2c2c2c;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+.auth-dialog.dark-mode .auth-actions button {
+  background: #333;
+  color: #e0e0e0;
+}
+
+.auth-dialog.dark-mode .auth-actions button:hover {
+  background-color: #444;
+}
+
+.auth-dialog.dark-mode .close-btn {
+  color: #aaa;
+}
+
+.auth-dialog.dark-mode .close-btn:hover {
+  color: #fff;
+}
+
+.auth-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+}
+
+.auth-dialog.dark-mode {
+  background: #222;
+  color: #eee;
+}
+
+.auth-dialog.dark-mode button {
+  background: #444;
+  color: #eee;
+  border: 1px solid #666;
+}
+
+.auth-dialog.dark-mode input {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+.user-email {
+  margin: 10px 0;
+  font-size: 14px;
+  color: inherit; /* adapts to dark mode */
+}
+
+.info-icon {
+  font-size: 20px;
+  vertical-align: middle;
+  margin-left: 6px;
+  cursor: pointer;
+  color: #666;
+}
+
+.auth-dialog.dark-mode .info-icon {
+  color: #ccc;
+}
+
+.offline-msg {
+  color: #d9534f; /* Bootstrap danger red */
+  font-size: 0.9em;
+  margin-top: 4px;
+}

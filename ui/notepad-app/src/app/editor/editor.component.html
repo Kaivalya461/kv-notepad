@@ -1,9 +1,18 @@
-<!-- editor.component.html -->
 <div class="editor">
-<textarea #noteTextArea
-          [(ngModel)]="noteText"
-          (keydown)="onKeyDown($event)"
-          (ngModelChange)="onTextChange($event)"
-          rows="40" cols="110"
-          placeholder="Start typing..."></textarea>
+  <textarea #noteTextArea
+            [(ngModel)]="noteText"
+            (keydown)="onKeyDown($event)"
+            (ngModelChange)="onTextChange($event)"
+            rows="40" cols="110"
+            placeholder="Start typing..."></textarea>
+
+  <!-- Character counter -->
+  <div class="char-counter" [class.limit-reached]="noteText.length >= maxChars">
+    {{ noteText.length }} / {{ maxChars }}
+  </div>
+
+  <!-- Warning message when limit reached -->
+  <div *ngIf="noteText.length >= maxChars" class="limit-warning">
+    Character limit reached.
+  </div>
 </div>

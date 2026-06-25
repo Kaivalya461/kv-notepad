@@ -15,11 +15,27 @@
 
   <!-- Sun/Moon toggle bottom-right -->
   <div class="darkmode-toggle">
-    <label class="switch">
+    <label class="switch" title="Toggle Dark/Light Mode">
       <input type="checkbox" [(ngModel)]="isDarkMode">
       <span class="slider">
         <span class="icon">{{ isDarkMode ? '🌙' : '🌞' }}</span>
       </span>
     </label>
+
+    <!-- Cloud button -->
+    <button class="cloud-btn"
+            [class.shine]="isShining"
+            (click)="openAuthDialog()"
+            [title]="!isOnline ? 'Offline - saving locally'
+                     : user ? 'Cloud Sync Active' : 'Cloud Sync Disabled'">
+      <mat-icon *ngIf="!isOnline">cloud_off</mat-icon>
+      <mat-icon *ngIf="isOnline && user">cloud_done</mat-icon>
+      <mat-icon *ngIf="isOnline && !user">cloud_queue</mat-icon>
+    </button>
   </div>
+
+  <app-auth
+    [isDarkMode]="isDarkMode"
+    (logoutEvent)="handleLogout()">
+  </app-auth>
 </div>

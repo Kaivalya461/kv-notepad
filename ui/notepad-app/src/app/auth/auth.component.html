@@ -1,0 +1,65 @@
+<!-- auth.component.html -->
+<div class="auth-backdrop" *ngIf="isOpen" (click)="closeAuthDialog()"></div>
+
+<div class="auth-dialog" *ngIf="isOpen" [class.dark-mode]="isDarkMode">
+  <button class="close-btn" (click)="closeAuthDialog()">✖</button>
+
+  <h3>
+    Cloud Save
+    <mat-icon
+      class="info-icon"
+      matTooltip="Your notes are saved securely in the cloud when logged in. Only you can access them through the app. Note: Firebase project admins can still view all notes.">
+      info
+    </mat-icon>
+  </h3>
+
+  <!-- Show login/register workflow if no user -->
+  <div *ngIf="!user">
+
+    <!-- STEP 1: Enter Email -->
+    <form *ngIf="viewState === 'email'" (ngSubmit)="requestOtp()">
+      <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-color, #555);">
+        Enter your email to receive a secure 6-digit login code.
+      </p>
+      <input type="email" placeholder="Email" [(ngModel)]="email" name="email" required>
+
+      <div class="auth-actions">
+        <button type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Sending...' : 'Send Verification Code' }}
+        </button>
+      </div>
+    </form>
+
+    <!-- STEP 2: Enter 6-Digit Code -->
+    <form *ngIf="viewState === 'otp'" (ngSubmit)="verifyOtp()">
+      <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-color, #555);">
+        A 6-digit verification code was sent to <strong>{{email}}</strong>. Enter it below to complete sign-in.
+      </p>
+      <input
+        #otpInput
+        type="text"
+        placeholder="6-Digit Code (e.g. 123456)"
+        [(ngModel)]="otpCode"
+        name="otpCode"
+        maxlength="6"
+        required>
+
+      <div class="auth-actions" style="display: flex; gap: 8px;">
+        <button type="button" style="background: #ccc; color: #333;" (click)="changeEmail()" [disabled]="isLoading">Back</button>
+        <button type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Verifying...' : 'Verify & Login' }}
+        </button>
+      </div>
+    </form>
+
+  </div>
+
+  <!-- Show user info + logout if logged in -->
+  <div *ngIf="user">
+    <p class="user-email">Logged in as: {{ user.email }}</p>
+    <p class="offline-msg" *ngIf="!isOnline">
+      Currently offline — saving locally only
+    </p>
+    <button type="button" (click)="logout()">Logout</button>
+  </div>
+</div>
