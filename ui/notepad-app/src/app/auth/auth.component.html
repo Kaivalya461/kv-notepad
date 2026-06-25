@@ -13,16 +13,46 @@
     </mat-icon>
   </h3>
 
-  <!-- Show login/register form if no user -->
-  <form *ngIf="!user" (ngSubmit)="login()">
-    <input type="email" placeholder="Email" [(ngModel)]="email" name="email" required>
-    <input type="password" placeholder="Password" [(ngModel)]="password" name="password" required>
+  <!-- Show login/register workflow if no user -->
+  <div *ngIf="!user">
 
-    <div class="auth-actions">
-      <button type="submit">Login</button>
-      <button type="button" (click)="register()">Register</button>
-    </div>
-  </form>
+    <!-- STEP 1: Enter Email -->
+    <form *ngIf="viewState === 'email'" (ngSubmit)="requestOtp()">
+      <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-color, #555);">
+        Enter your email to receive a secure 6-digit login code.
+      </p>
+      <input type="email" placeholder="Email" [(ngModel)]="email" name="email" required>
+
+      <div class="auth-actions">
+        <button type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Sending...' : 'Send Verification Code' }}
+        </button>
+      </div>
+    </form>
+
+    <!-- STEP 2: Enter 6-Digit Code -->
+    <form *ngIf="viewState === 'otp'" (ngSubmit)="verifyOtp()">
+      <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-color, #555);">
+        A 6-digit verification code was sent to <strong>{{email}}</strong>. Enter it below to complete sign-in.
+      </p>
+      <input
+        #otpInput
+        type="text"
+        placeholder="6-Digit Code (e.g. 123456)"
+        [(ngModel)]="otpCode"
+        name="otpCode"
+        maxlength="6"
+        required>
+
+      <div class="auth-actions" style="display: flex; gap: 8px;">
+        <button type="button" style="background: #ccc; color: #333;" (click)="changeEmail()" [disabled]="isLoading">Back</button>
+        <button type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Verifying...' : 'Verify & Login' }}
+        </button>
+      </div>
+    </form>
+
+  </div>
 
   <!-- Show user info + logout if logged in -->
   <div *ngIf="user">

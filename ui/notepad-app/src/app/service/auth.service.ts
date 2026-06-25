@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User } from '@angular/fire/auth';
+import { Auth, signInWithCustomToken, signOut, onAuthStateChanged, User } from '@angular/fire/auth';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -15,35 +15,21 @@ export class AuthService {
     });
   }
 
-  async register(email: string, password: string) {
-    // Limit registrations to 100 users
-    const usersCount = await this.getUserCount();
-    if (usersCount >= 100) {
-      throw new Error('Registration limit reached (100 users max).');
-    }
-
-    // To skip Event Driven Data Load from Firebase in notepad.service.ts, as notes and metadata is already present.
-    localStorage.setItem('firstRegistration', 'true');
-
-    const cred = await createUserWithEmailAndPassword(this.auth, email, password);
-
-    return cred;
-  }
-
-  async login(email: string, password: string) {
-    return signInWithEmailAndPassword(this.auth, email, password);
-  }
-
   async logout() {
     return signOut(this.auth);
   }
 
-  private async getUserCount(): Promise<number> {
-    // TODO: implement Firestore query to count users
-    return 0;
-  }
-
   getCurrentUser(): User | null {
     return this.auth.currentUser;
+  }
+
+  async loginWithToken(token: string) {
+    try {
+      // Exchange custom backend assertion pass for an official standard Firebase User token
+      return await signInWithCustomToken(this.auth, token);
+    } catch (error) {
+      console.error("Custom token validation processing failure", error);
+      throw error;
+    }
   }
 }

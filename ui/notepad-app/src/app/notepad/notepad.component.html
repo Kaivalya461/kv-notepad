@@ -24,6 +24,7 @@
 
     <!-- Cloud button -->
     <button class="cloud-btn"
+            [class.shine]="isShining"
             (click)="openAuthDialog()"
             [title]="!isOnline ? 'Offline - saving locally'
                      : user ? 'Cloud Sync Active' : 'Cloud Sync Disabled'">

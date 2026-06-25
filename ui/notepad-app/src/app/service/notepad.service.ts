@@ -18,6 +18,12 @@ export class NotepadService {
   private onlineSubject = new BehaviorSubject<boolean>(navigator.onLine);
   online$ = this.onlineSubject.asObservable();
 
+  private noteCounterSubject = new BehaviorSubject<number>(0);
+  noteCounter$ = this.noteCounterSubject.asObservable();
+
+  private activeFileSubject = new BehaviorSubject<string | null>(null);
+  activeFile$ = this.activeFileSubject.asObservable();
+
   constructor(private firestore: Firestore, private authService: AuthService) {
     this.syncTrigger.pipe(debounceTime(11000)).subscribe(() => {
       this.syncNotes();
@@ -25,15 +31,7 @@ export class NotepadService {
 
     this.authService.user$.subscribe(user => {
       if (user) {
-        const firstRegistration = localStorage.getItem('firstRegistration');
-        if (firstRegistration) {
-          // Only seed local data to Firestore during register, and skip load from Firestore
-          console.log("Already seeded Firestore during register, so skip load");
-          this.firstTimeReg();
-          localStorage.removeItem('firstRegistration');
-        } else {
-          this.loadNotesFromFirestore(user.uid);
-        }
+        this.loadNotesFromFirestore(user.uid);
       }
     });
 
@@ -48,8 +46,9 @@ export class NotepadService {
     });
   }
 
-  updateNotes(files: Record<string, NoteData>, activeFile?: string | null, noteCounter?: number) {
+  updateNotes(files: Record<string, NoteData>, activeFile: string | null, noteCounter: number) {
     this.notesSubject.next(files);
+    this.noteCounterSubject.next(noteCounter);
 
     localStorage.setItem(APP_CONSTANTS.NOTEPAD_DATA, JSON.stringify({
       files: files,
@@ -58,6 +57,19 @@ export class NotepadService {
     }));
 
     this.syncTrigger.next();
+  }
+
+  forceUpdateNotes(files: Record<string, NoteData>, activeFile: string | null, noteCounter: number) {
+    this.notesSubject.next(files);
+    this.noteCounterSubject.next(noteCounter);
+
+    localStorage.setItem(APP_CONSTANTS.NOTEPAD_DATA, JSON.stringify({
+      files: files,
+      activeFile,
+      noteCounter
+    }));
+
+    this.syncNotes();
   }
 
   private async syncNotes() {
@@ -84,6 +96,9 @@ export class NotepadService {
       activeFile: localData.activeFile || null,
       noteCounter: localData.noteCounter || 0
     }, { merge: true });
+
+    // ✅ Notify sync completion (for animation)
+    document.dispatchEvent(new CustomEvent('notesSynced'));
   }
 
   private async loadNotesFromFirestore(uid: string) {
@@ -136,7 +151,9 @@ export class NotepadService {
     }
 
     this.notesSubject.next(mergedNotes);
+    this.noteCounterSubject.next(noteCounter);
     localStorage.setItem(APP_CONSTANTS.NOTEPAD_DATA, JSON.stringify({ files: mergedNotes, activeFile, noteCounter }));
+    this.activeFileSubject.next(activeFile); // this will trigger handleSelectFile in Notepad Component.
   }
 
   async deleteNote(noteId: string) {
@@ -167,33 +184,66 @@ export class NotepadService {
     }
   }
 
-  private async firstTimeReg() {
-    // ✅ After registration, save local notes + metadata into firebase
-    const user = this.authService.getCurrentUser();
-    if (!user) {
-      alert("User Registration Failed!");
-      return;
+  clearLocalNotes() {
+    localStorage.removeItem(APP_CONSTANTS.NOTEPAD_DATA);
+    this.notesSubject.next({});
+    this.noteCounterSubject.next(0);
+  }
+
+  hasLocalNotes(): boolean {
+    const localData = JSON.parse(localStorage.getItem(APP_CONSTANTS.NOTEPAD_DATA) || '{}');
+    const files: Record<string, NoteData> = localData.files || {};
+
+    // Check if any note has non-empty content
+    return Object.values(files).some(note => note.content && note.content.trim().length > 0);
+  }
+
+  clearAllEmptyNotes() {
+    const localData = JSON.parse(localStorage.getItem(APP_CONSTANTS.NOTEPAD_DATA) || '{}');
+    const files: Record<string, NoteData> = localData.files || {};
+
+    // Filter out notes with empty or whitespace-only content
+    const filteredNotes: Record<string, NoteData> = {};
+    for (const [noteId, note] of Object.entries(files)) {
+      if (note.content && note.content.trim().length > 0) {
+        filteredNotes[noteId] = note;
+      }
     }
 
-    const savedData = JSON.parse(localStorage.getItem(APP_CONSTANTS.NOTEPAD_DATA) || '{}');
-    const files = savedData.files || {};
-    const activeFile = savedData.activeFile || null;
-    const noteCounter = savedData.noteCounter || 0;
+    // Update BehaviorSubject and localStorage
+    this.updateNotesBehaviourAndLocalStorage(filteredNotes, localData);
+  }
 
-    // Save metadata in parent doc
-    await setDoc(doc(this.firestore, `notepadUsers/${user.uid}`), {
-      activeFile,
-      noteCounter
-    }, { merge: true });
+  prepareUnsavedNotesForSync() {
+    const localData = JSON.parse(localStorage.getItem(APP_CONSTANTS.NOTEPAD_DATA) || '{}');
+    const files: Record<string, NoteData> = localData.files || {};
 
-    // Save notes in subcollection
-    console.log("Parsed Files in registration workflow -> " + JSON.stringify(files));
-    const notesCol = collection(this.firestore, `notepadUsers/${user.uid}/notes`);
-    for (const [noteId, noteData] of Object.entries(files) as [string, NoteData][]) {
-      await setDoc(doc(notesCol, noteId), {
-        content: noteData.content,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
+    const renamedNotes: Record<string, NoteData> = {};
+
+    for (const [noteId, noteData] of Object.entries(files)) {
+      // Only rename if note has content
+      if (noteData.content && noteData.content.trim().length > 0) {
+        const randomNum = Math.floor(100 + Math.random() * 900); // Adding random number to avoid overwriting note if same note exists in cloud.
+        const newId = `local${randomNum}_${noteId}`;
+
+        renamedNotes[newId] = {
+          ...noteData,
+          updatedAt: new Date().toISOString()
+        };
+      }
     }
+
+    // Update BehaviorSubject and localStorage with renamed notes
+    this.updateNotesBehaviourAndLocalStorage(renamedNotes, localData);
+  }
+
+  updateNotesBehaviourAndLocalStorage(notes: Record<string, NoteData>, localData: any) {
+    this.notesSubject.next(notes);
+    this.noteCounterSubject.next(localData.noteCounter);
+    localStorage.setItem(APP_CONSTANTS.NOTEPAD_DATA, JSON.stringify({
+      files: notes,
+      activeFile: localData.activeFile || null,
+      noteCounter: localData.noteCounter || 0
+    }));
   }
 }

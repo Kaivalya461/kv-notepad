@@ -11,6 +11,7 @@ import { NotepadService } from '../service/notepad.service';
 import { NoteData } from '../models/note-data.interface';
 import { APP_CONSTANTS } from '../constant/app.constants';
 import { MigrationService } from '../service/migration.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-notepad',
@@ -37,27 +38,44 @@ export class NotepadComponent implements OnInit {
 
   user: any = null;
   isOnline = true;
+  isShining = false;
+
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private authService: AuthService,
     private notepadService: NotepadService,
     private migrationService: MigrationService
-  ) {
-    this.authService.user$.subscribe(u => this.user = u);
-
-    this.notepadService.notes$.subscribe(noteMap => {
-      this.files = noteMap;
-      if (this.activeFile && this.files[this.activeFile]) {
-        this.noteText = this.files[this.activeFile].content;
-      }
-    });
-
-    this.notepadService.online$.subscribe(status => this.isOnline = status);
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.subscriptions.push(
+      this.authService.user$.subscribe(u => this.user = u),
+      this.notepadService.notes$.subscribe(noteMap => {
+        this.files = noteMap;
+        if (this.activeFile && this.files[this.activeFile]) {
+          this.noteText = this.files[this.activeFile].content;
+        }
+      }),
+      this.notepadService.online$.subscribe(status => this.isOnline = status),
+      this.notepadService.noteCounter$.subscribe(counter => this.noteCounter = counter),
+      this.notepadService.activeFile$.subscribe(filename => {
+        if (filename) {
+          this.handleSelectFile(filename);
+        }
+      })
+    );
+
     this.loadData();
     setTimeout(() => this.ensureActiveNote(), 3000);
+
+    document.addEventListener('notesSynced', () => this.triggerCloudShine());
+    window.addEventListener('keydown', this.handleKeydown);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    window.removeEventListener('keydown', this.handleKeydown);
   }
 
   /** Load saved data from localStorage */
@@ -72,6 +90,7 @@ export class NotepadComponent implements OnInit {
     this.files = parsed.files || {};
     this.activeFile = parsed.activeFile || null;
     this.noteCounter = this.computeNoteCounter(parsed);
+    console.log("NoteCounter Identified in loadData -> " + this.noteCounter);
 
     if (this.activeFile && this.files[this.activeFile]) {
       this.noteText = this.files[this.activeFile].content;
@@ -184,4 +203,16 @@ export class NotepadComponent implements OnInit {
     // For simplicity, if using ViewChild:
     this.authComponent.open();
   }
+
+  triggerCloudShine() {
+    this.isShining = true;
+    setTimeout(() => this.isShining = false, 1000); // remove after animation
+  }
+
+  handleKeydown = (event: KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault(); // stop browser "Save Page"
+      this.notepadService.forceUpdateNotes(this.files, this.activeFile, this.noteCounter); // trigger sync immediately
+    }
+  };
 }
