@@ -5,7 +5,7 @@ html, body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background: #ffffff;
+  background: #FFF5EE;
   color: #000000;
 }
 
@@ -14,48 +14,10 @@ html, body {
   height: 100vh;
 }
 
-.sidebar {
-  width: 200px;
-  background: #f4f4f4;
-  padding: 10px;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  padding: 5px;
-  cursor: pointer;
-}
-
-.sidebar li.active {
-  background: #ddd;
-  font-weight: bold;
-}
-
-.editor {
-  flex: 1;
-  padding: 10px;
-}
-
 /* Dark mode */
 .dark-mode {
   background: #121212;
   color: #e0e0e0;
-}
-
-.dark-mode .sidebar {
-  background: #1e1e1e;
-}
-
-.dark-mode .sidebar li {
-  color: #e0e0e0;
-}
-
-.dark-mode .sidebar li.active {
-  background: #333;
 }
 
 .dark-mode .editor {
@@ -64,7 +26,7 @@ html, body {
 
 .dark-mode textarea {
   background: #2c2c2c;
-  color: #e0e0e0;
+  color: #F8F8FF;
   border: 1px solid #444;
 }
 
@@ -82,12 +44,14 @@ html, body {
   color: darkred;
 }
 
-/* Dark mode button styles */
-.dark-mode .sidebar button {
-  background: #333;
-  color: #e0e0e0;
+.dark-mode button[mat-icon-button] {
+  background-color: #2c2c2c;
 }
 
-.editor textarea:focus {
-  outline: none;   /* removes the blue border */
+.dark-mode mat-icon {
+  color: #e0e0e0; /* ensures icon itself is light */
+}
+
+.dark-mode .mobile-footer {
+  background: #1e1e1e;   /* dark surface */
 }

@@ -5,13 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { EditorComponent } from '../editor/editor.component';
 import { FileListComponent } from '../file-list/file-list.component';
 import { AuthComponent } from '../auth/auth.component';
-import { AuthService } from '../service/auth.service';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar'
 import { NotepadService } from '../service/notepad.service';
 import { NoteData } from '../models/note-data.interface';
 import { APP_CONSTANTS } from '../constant/app.constants';
 import { MigrationService } from '../service/migration.service';
 import { Subscription } from 'rxjs';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { ActionButtons } from '../action-buttons/action-buttons';
 
 @Component({
   selector: 'app-notepad',
@@ -21,7 +24,10 @@ import { Subscription } from 'rxjs';
     FileListComponent,
     EditorComponent,
     AuthComponent,
-    MatIconModule
+    ActionButtons,
+    MatIconModule,
+    MatSidenavModule,
+    MatToolbarModule
   ],
   templateUrl: './notepad.component.html',
   styleUrl: './notepad.component.css'
@@ -35,41 +41,44 @@ export class NotepadComponent implements OnInit {
 
   @ViewChild(EditorComponent) editor!: EditorComponent;
   @ViewChild(AuthComponent) authComponent!: AuthComponent;
+  @ViewChild('drawer') drawer!: MatSidenav;
 
-  user: any = null;
-  isOnline = true;
-  isShining = false;
+  isMobile = false;
 
   private subscriptions: Subscription[] = [];
 
   constructor(
-    private authService: AuthService,
     private notepadService: NotepadService,
-    private migrationService: MigrationService
+    private migrationService: MigrationService,
+    private breakpointObserver: BreakpointObserver
   ) {}
 
   ngOnInit(): void {
+    // to support mobile-ui
+    this.breakpointObserver.observe([Breakpoints.Handset])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+      });
+
     this.subscriptions.push(
-      this.authService.user$.subscribe(u => this.user = u),
       this.notepadService.notes$.subscribe(noteMap => {
         this.files = noteMap;
         if (this.activeFile && this.files[this.activeFile]) {
           this.noteText = this.files[this.activeFile].content;
         }
       }),
-      this.notepadService.online$.subscribe(status => this.isOnline = status),
       this.notepadService.noteCounter$.subscribe(counter => this.noteCounter = counter),
       this.notepadService.activeFile$.subscribe(filename => {
         if (filename) {
           this.handleSelectFile(filename);
         }
-      })
+      }),
+      this.notepadService.darkModeSubject$.subscribe(isDark => this.isDarkMode = isDark)
     );
 
     this.loadData();
     setTimeout(() => this.ensureActiveNote(), 3000);
 
-    document.addEventListener('notesSynced', () => this.triggerCloudShine());
     window.addEventListener('keydown', this.handleKeydown);
   }
 
@@ -124,7 +133,13 @@ export class NotepadComponent implements OnInit {
     this.saveData();
 
     // Focus textarea after selecting a file
-    setTimeout(() => this.editor.focusTextarea(), 1000);
+    if (!this.isMobile) {
+      setTimeout(() => this.editor.focusTextarea(), 1000);
+    }
+
+    if (this.isMobile && this.drawer) {
+      this.drawer.close();
+    }
   }
 
   handleNewFile() {
@@ -141,6 +156,10 @@ export class NotepadComponent implements OnInit {
     this.saveData();
 
     setTimeout(() => this.editor.focusTextarea(), 1000);
+
+    if (this.isMobile && this.drawer) {
+      this.drawer.close();
+    }
   }
 
   handleNoteChange(newText: string) {
@@ -162,10 +181,6 @@ export class NotepadComponent implements OnInit {
     //   noteCounter: this.noteCounter
     // }));
     this.notepadService.updateNotes(this.files, this.activeFile, this.noteCounter);
-  }
-
-  toggleDarkMode() {
-    this.isDarkMode = !this.isDarkMode;
   }
 
   handleDeleteFile(filename: string) {
@@ -202,11 +217,6 @@ export class NotepadComponent implements OnInit {
     // You can use a service or directly toggle the AuthComponent
     // For simplicity, if using ViewChild:
     this.authComponent.open();
-  }
-
-  triggerCloudShine() {
-    this.isShining = true;
-    setTimeout(() => this.isShining = false, 1000); // remove after animation
   }
 
   handleKeydown = (event: KeyboardEvent) => {

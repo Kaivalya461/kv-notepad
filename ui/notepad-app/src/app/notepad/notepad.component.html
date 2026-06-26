@@ -1,37 +1,47 @@
 <!-- notepad.component.html -->
 <div class="container" [class.dark-mode]="isDarkMode">
-  <app-file-list
-    [files]="files"
-    [activeFile]="activeFile"
-    (selectFile)="handleSelectFile($event)"
-    (newFile)="handleNewFile()"
-    (deleteFile)="handleDeleteFile($event)">
-  </app-file-list>
 
-  <app-editor
-    [noteText]="noteText"
-    (noteChange)="handleNoteChange($event)">
-  </app-editor>
-
-  <!-- Sun/Moon toggle bottom-right -->
-  <div class="darkmode-toggle">
-    <label class="switch" title="Toggle Dark/Light Mode">
-      <input type="checkbox" [(ngModel)]="isDarkMode">
-      <span class="slider">
-        <span class="icon">{{ isDarkMode ? '🌙' : '🌞' }}</span>
-      </span>
-    </label>
-
-    <!-- Cloud button -->
-    <button class="cloud-btn"
-            [class.shine]="isShining"
-            (click)="openAuthDialog()"
-            [title]="!isOnline ? 'Offline - saving locally'
-                     : user ? 'Cloud Sync Active' : 'Cloud Sync Disabled'">
-      <mat-icon *ngIf="!isOnline">cloud_off</mat-icon>
-      <mat-icon *ngIf="isOnline && user">cloud_done</mat-icon>
-      <mat-icon *ngIf="isOnline && !user">cloud_queue</mat-icon>
+  <!-- Toolbar as header (mobile only) -->
+  <mat-toolbar *ngIf="isMobile" class="app-header">
+    <button mat-icon-button (click)="drawer.toggle()">
+      <mat-icon>menu</mat-icon>
     </button>
+    <span class="toolbar-title">{{ activeFile || 'KV Notepad' }}</span>
+    <span class="spacer"></span>
+    <app-action-buttons
+      [isDarkMode]="isDarkMode"
+      (openAuthDialogOut)="openAuthDialog()">
+    </app-action-buttons>
+  </mat-toolbar>
+
+  <!-- Sidenav container sits below header -->
+  <mat-sidenav-container class="main-container">
+    <mat-sidenav #drawer [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
+      <app-file-list
+        [isDarkMode]="isDarkMode"
+        [files]="files"
+        [activeFile]="activeFile"
+        (selectFile)="handleSelectFile($event)"
+        (newFile)="handleNewFile()"
+        (deleteFile)="handleDeleteFile($event)">
+      </app-file-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <app-editor
+        [noteText]="noteText"
+        (noteChange)="handleNoteChange($event)">
+      </app-editor>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+
+  <!-- Desktop-only controls -->
+  <div class="desktop-controls" *ngIf="!isMobile">
+    <!-- Action Button -> Sun/Moon toggle bottom-right -->
+    <app-action-buttons
+      [isDarkMode]="isDarkMode"
+      (openAuthDialogOut)="openAuthDialog()">
+    </app-action-buttons>
   </div>
 
   <app-auth

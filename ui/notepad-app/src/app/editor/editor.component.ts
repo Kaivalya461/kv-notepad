@@ -1,5 +1,6 @@
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -9,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css']
 })
-export class EditorComponent implements AfterViewInit {
+export class EditorComponent implements OnInit, AfterViewInit {
   @Input() noteText: string = '';
   @Output() noteChange = new EventEmitter<string>();
 
@@ -17,8 +18,24 @@ export class EditorComponent implements AfterViewInit {
 
   readonly maxChars = 21000;
 
+  isMobile = false;
+
+  constructor(
+    private breakpointObserver: BreakpointObserver
+  ) {}
+
+  ngOnInit(): void {
+    // to support mobile-ui
+    this.breakpointObserver.observe([Breakpoints.Handset])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+      });
+  }
+
   ngAfterViewInit(): void {
-    this.focusTextarea();
+    if (!this.isMobile) {
+      this.focusTextarea();
+    }
   }
 
   focusTextarea() {

@@ -3,15 +3,25 @@
             [(ngModel)]="noteText"
             (keydown)="onKeyDown($event)"
             (ngModelChange)="onTextChange($event)"
-            rows="40" cols="110"
-            placeholder="Start typing..."></textarea>
+            placeholder="Start typing..."
+            class="editor-textarea"></textarea>
 
-  <!-- Character counter -->
+  <!-- Desktop-only counter/warning -->
+  <div class="desktop-counter" *ngIf="!isMobile">
+    <div class="char-counter" [class.limit-reached]="noteText.length >= maxChars">
+      {{ noteText.length }} / {{ maxChars }}
+    </div>
+    <div *ngIf="noteText.length >= maxChars" class="limit-warning">
+      Character limit reached.
+    </div>
+  </div>
+</div>
+
+<!-- Mobile footer -->
+<div class="mobile-footer" *ngIf="isMobile">
   <div class="char-counter" [class.limit-reached]="noteText.length >= maxChars">
     {{ noteText.length }} / {{ maxChars }}
   </div>
-
-  <!-- Warning message when limit reached -->
   <div *ngIf="noteText.length >= maxChars" class="limit-warning">
     Character limit reached.
   </div>
