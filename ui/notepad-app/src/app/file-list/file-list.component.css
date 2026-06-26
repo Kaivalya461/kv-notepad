@@ -1,0 +1,39 @@
+.sidebar {
+  width: 200px;
+  background: #f4f4f4;
+  padding: 10px;
+  border: 1px solid #333;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.sidebar li.active {
+  background: #ddd;
+  font-weight: bold;
+}
+
+/* file-list.component.css */
+.sidebar.dark-mode {
+  background: #1e1e1e;
+}
+
+.sidebar.dark-mode li {
+  color: #e0e0e0;
+}
+
+.sidebar.dark-mode li.active {
+  background: #333;
+}
+
+.sidebar.dark-mode button {
+  background: #333;
+  color: #e0e0e0;
+}

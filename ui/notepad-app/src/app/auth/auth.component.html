@@ -35,14 +35,16 @@
       <p style="font-size: 14px; margin-bottom: 12px; color: var(--text-color, #555);">
         A 6-digit verification code was sent to <strong>{{email}}</strong>. Enter it below to complete sign-in.
       </p>
-      <input
-        #otpInput
-        type="text"
-        placeholder="6-Digit Code (e.g. 123456)"
-        [(ngModel)]="otpCode"
-        name="otpCode"
-        maxlength="6"
-        required>
+        <input
+          #otpInput
+          type="text"
+          placeholder="6-Digit Code (e.g. 123456)"
+          [(ngModel)]="otpCode"
+          name="otpCode"
+          maxlength="6"
+          required
+          inputmode="decimal"
+          pattern="[0-9]*">
 
       <div class="auth-actions" style="display: flex; gap: 8px;">
         <button type="button" style="background: #ccc; color: #333;" (click)="changeEmail()" [disabled]="isLoading">Back</button>

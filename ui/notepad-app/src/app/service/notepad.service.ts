@@ -24,6 +24,9 @@ export class NotepadService {
   private activeFileSubject = new BehaviorSubject<string | null>(null);
   activeFile$ = this.activeFileSubject.asObservable();
 
+  private darkModeSubject = new BehaviorSubject<boolean>(true);
+  darkModeSubject$ = this.darkModeSubject.asObservable();
+
   constructor(private firestore: Firestore, private authService: AuthService) {
     this.syncTrigger.pipe(debounceTime(11000)).subscribe(() => {
       this.syncNotes();
@@ -44,6 +47,11 @@ export class NotepadService {
       this.onlineSubject.next(false);
       console.log("App is offline, saving locally only");
     });
+
+    const userTheme = localStorage.getItem("kv-notepad-theme");
+    if (userTheme && userTheme == 'light') {
+      this.setDarkMode(false);
+    }
   }
 
   updateNotes(files: Record<string, NoteData>, activeFile: string | null, noteCounter: number) {
@@ -245,5 +253,15 @@ export class NotepadService {
       activeFile: localData.activeFile || null,
       noteCounter: localData.noteCounter || 0
     }));
+  }
+
+  get isDarkMode(): boolean {
+    return this.darkModeSubject.value;
+  }
+
+  // Setter
+  setDarkMode(value: boolean) {
+    this.darkModeSubject.next(value);
+    localStorage.setItem('kv-notepad-theme', value ? 'dark' : 'light');
   }
 }

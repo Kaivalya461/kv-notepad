@@ -11,6 +11,7 @@ import { NoteData } from '../models/note-data.interface';
   styleUrls: ['./file-list.component.css']
 })
 export class FileListComponent {
+  @Input() isDarkMode = false;
   @Input() files: Record<string, NoteData> = {};
   @Input() activeFile: string | null = null;
   @Output() selectFile = new EventEmitter<string>();

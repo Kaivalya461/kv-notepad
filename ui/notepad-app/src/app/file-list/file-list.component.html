@@ -1,5 +1,5 @@
 <!-- file-list.component.html -->
-<div class="sidebar">
+<div class="sidebar" [class.dark-mode]="isDarkMode">
   <button (click)="onNewFile()">New File</button>
   <ul>
     <li *ngFor="let file of (files | keyvalue)"

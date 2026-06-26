@@ -1,104 +1,61 @@
-/* notepad.component.css */
-/* Dark Mode Toggle button CSS starts here */
-.darkmode-toggle {
+/* ===== Responsive Layout ===== */
+@media (max-width: 768px) {
+  .darkmode-toggle {
+    position: static;
+  }
+
+  app-editor {
+    flex: 1;
+    height: calc(100vh - 56px);
+    padding: 0;
+    font-size: 14px;
+    overflow-y: auto;
+  }
+
+  .main-container {
+    width: 100%;
+    /* height: 80%; */
+    margin-top: 56px;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Desktop: no title bar, only floating controls */
+  .desktop-controls {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .main-container {
+    margin-top: 0;  /* No offset for toolbar */
+  }
+}
+
+mat-sidenav {
+  width: auto;
+  height: fit-content;
+  align-self: flex-start;
+}
+
+/* Toolbar as header */
+mat-toolbar.app-header {
+  height: 56px;
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
-  border-radius: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.4s;
-  font-size: 20px;
-}
-
-input:checked + .slider {
-  background-color: #444; /* dark background when active */
-}
-
-.icon {
-  pointer-events: none; /* prevent accidental clicks */
-}
-
-.darkmode-toggle .icon {
-  user-select: none;   /* modern browsers */
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none;     /* old IE/Edge */
-}
-/* Dark Mode Toggle button CSS ends here */
-
-/* Cloud-Save Toggle button CSS starts here */
-.cloud-btn {
-  position: relative;
-  /* margin-left: 10px; */
-  width: 60px;
-  height: 34px;
-  background-color: #ccc;
-  border: none;
-  border-radius: 34px;
-  cursor: pointer;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.4s;
-}
-
-.cloud-btn:hover {
-  background-color: #aaa;
-}
-
-.dark-mode .cloud-btn {
-  background-color: #444;
-  color: #fff;
-}
-/* Cloud-Save Toggle button CSS ends here */
-
-/* Cloud-Save button Shine animation */
-.cloud-btn.shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.cloud-btn.shine::after {
-  content: '';
-  position: absolute;
   top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.3) 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    rgba(255, 255, 255, 0.3) 100%
-  );
-  transform: skewX(-20deg);
-  animation: shine 2s ease forwards;
+  left: 0;
+  right: 0;
+  z-index: 1000;     /* above everything */
 }
 
-@keyframes shine {
-  0% { left: -75%; }
-  100% { left: 125%; }
+.toolbar-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
 }
-/* Cloud-Save button Shine animation end */
+
+.spacer {
+  flex: 1;
+}
