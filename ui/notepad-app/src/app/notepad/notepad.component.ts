@@ -77,7 +77,7 @@ export class NotepadComponent implements OnInit {
     );
 
     this.loadData();
-    setTimeout(() => this.ensureActiveNote(), 3000);
+    setTimeout(() => this.ensureActiveNote(), 2000);
 
     window.addEventListener('keydown', this.handleKeydown);
   }
@@ -130,12 +130,7 @@ export class NotepadComponent implements OnInit {
   handleSelectFile(filename: string) {
     this.activeFile = filename;
     this.noteText = this.files[filename].content;
-    this.saveData();
-
-    // Focus textarea after selecting a file
-    if (!this.isMobile) {
-      setTimeout(() => this.editor.focusTextarea(), 1000);
-    }
+    this.forceSaveData();
 
     if (this.isMobile && this.drawer) {
       this.drawer.close();
@@ -148,12 +143,17 @@ export class NotepadComponent implements OnInit {
       return;
     }
 
-    this.noteCounter++;
-    const filename = `note${this.noteCounter}`;
+    // Keep incrementing until we find a unique filename
+    let filename: string;
+    do {
+      this.noteCounter++;
+      filename = `note${this.noteCounter}`;
+    } while (this.files.hasOwnProperty(filename));
+
     this.files[filename] = { content: '', updatedAt: new Date().toISOString() };
     this.activeFile = filename;
     this.noteText = '';
-    this.saveData();
+    this.forceSaveData();
 
     setTimeout(() => this.editor.focusTextarea(), 1000);
 
@@ -183,6 +183,10 @@ export class NotepadComponent implements OnInit {
     this.notepadService.updateNotes(this.files, this.activeFile, this.noteCounter);
   }
 
+  private forceSaveData() {
+    this.notepadService.forceUpdateNotes(this.files, this.activeFile, this.noteCounter);
+  }
+
   handleDeleteFile(filename: string) {
     this.notepadService.deleteNote(filename);
 
@@ -193,10 +197,7 @@ export class NotepadComponent implements OnInit {
       this.noteText = this.activeFile ? this.files[this.activeFile].content : '';
     }
 
-    this.saveData();
-
-    // Focus textarea after deleting new file
-    setTimeout(() => this.editor.focusTextarea(), 1000);
+    this.forceSaveData();
   }
 
   async handleLogout() {

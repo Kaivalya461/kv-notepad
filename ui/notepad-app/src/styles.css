@@ -55,3 +55,21 @@ html, body {
 .dark-mode .mobile-footer {
   background: #1e1e1e;   /* dark surface */
 }
+
+/* Dark mode toolbar */
+.container mat-toolbar.app-header {
+  background-color: #FFF5EE;  /* dark background */
+}
+.container.dark-mode mat-toolbar.app-header {
+  background-color: #121212;  /* dark background */
+  color: #e0e0e0;             /* light text */
+}
+
+/* mat-sidenav background colors */
+.container mat-sidenav-container {
+  background: #FFF5EE;;  /* dark background */
+}
+
+.container.dark-mode mat-sidenav-container {
+  background-color: #121212;  /* dark background */
+}

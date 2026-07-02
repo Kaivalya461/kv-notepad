@@ -18,6 +18,7 @@
     resize: none;
     flex: 1;
     box-sizing: border-box;
+    font-size: small;
   }
 
   .editor {
@@ -71,4 +72,10 @@
   box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
   text-align: right;
   z-index: 1000;
+  box-sizing: border-box;
+}
+
+.mobile-footer .char-counter,
+.mobile-footer .limit-warning {
+  padding-right: 8px;  /* ensures text doesn’t touch screen edge */
 }
