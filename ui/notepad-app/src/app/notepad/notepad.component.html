@@ -19,7 +19,7 @@
     <mat-sidenav #drawer [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
       <app-file-list
         [isDarkMode]="isDarkMode"
-        [files]="files"
+        [files]="activeNotes"
         [activeFile]="activeFile"
         (selectFile)="handleSelectFile($event)"
         (newFile)="handleNewFile()"

@@ -78,6 +78,7 @@ export class NotepadComponent implements OnInit {
 
     this.loadData();
     setTimeout(() => this.ensureActiveNote(), 2000);
+    setTimeout(() => this.notepadService.cleanupDeletedNotes(), 10000); // cleanup old deleted notes after 10sec delay
 
     window.addEventListener('keydown', this.handleKeydown);
   }
@@ -226,4 +227,8 @@ export class NotepadComponent implements OnInit {
       this.notepadService.forceUpdateNotes(this.files, this.activeFile, this.noteCounter); // trigger sync immediately
     }
   };
+
+  get activeNotes(): Record<string, NoteData> {
+    return this.notepadService.getActiveNotes();
+  }
 }

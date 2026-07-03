@@ -22,6 +22,16 @@ app.use(express.static(path.join(__dirname, 'dist/notepad-app/browser'), {
   lastModified: true     // enable Last-Modified headers
 }));
 
+// Serve robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.sendFile(path.join(__dirname, 'robots.txt'));
+});
+
+// Serve sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sitemap.xml'));
+});
+
 // Catch-all route for Angular (use regex in Express 5)
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/notepad-app/browser/index.html'));

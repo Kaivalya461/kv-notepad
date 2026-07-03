@@ -166,14 +166,27 @@ export class NotepadService {
 
   async deleteNote(noteId: string) {
     const notes = { ...this.notesSubject.value };
-    delete notes[noteId];
+
+    if (notes[noteId]) {
+      // ✅ Soft delete instead of removing
+      notes[noteId] = {
+        ...notes[noteId],
+        isDeleted: true,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    // Push updated notes into subject
     this.notesSubject.next(notes);
 
     const user = this.authService.getCurrentUser();
     if (!user) return;
 
+    // ✅ Instead of deleteDoc, mark note as deleted in Firestore
     const ref = doc(this.firestore, `notepadUsers/${user.uid}/notes/${noteId}`);
-    await deleteDoc(ref);
+    await setDoc(ref, {
+      ...notes[noteId]
+    }, { merge: true });
 
     // Update metadata after deletion
     const localData = JSON.parse(localStorage.getItem(APP_CONSTANTS.NOTEPAD_DATA) || '{}');
@@ -263,5 +276,40 @@ export class NotepadService {
   setDarkMode(value: boolean) {
     this.darkModeSubject.next(value);
     localStorage.setItem('kv-notepad-theme', value ? 'dark' : 'light');
+  }
+
+  cleanupDeletedNotes() {
+    const localData = JSON.parse(localStorage.getItem(APP_CONSTANTS.NOTEPAD_DATA) || '{}');
+    const files: Record<string, NoteData> = localData.files || {};
+
+    const now = Date.now();
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+    const cleanedNotes: Record<string, NoteData> = {};
+
+    for (const [noteId, note] of Object.entries(files)) {
+      if (note.isDeleted) {
+        const deletedAt = new Date(note.updatedAt).getTime();
+        if (now - deletedAt > THIRTY_DAYS) {
+          // 🚮 Skip this note → permanently removed
+          continue;
+        }
+      }
+      cleanedNotes[noteId] = note;
+    }
+
+    // Update BehaviorSubjects and localStorage
+    this.updateNotesBehaviourAndLocalStorage(cleanedNotes, localData);
+
+  }
+
+  getActiveNotes(): Record<string, NoteData> {
+    const files = this.notesSubject.value || {};
+    return Object.entries(files)
+      .filter(([_, note]) => !note.isDeleted)
+      .reduce((acc, [id, note]) => {
+        acc[id] = note;
+        return acc;
+      }, {} as Record<string, NoteData>);
   }
 }
