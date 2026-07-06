@@ -16,7 +16,8 @@ export class MigrationService {
       if (typeof value === 'string') {
         migratedFiles[filename] = {
           content: value,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          isDeleted: false
         };
       } else {
         migratedFiles[filename] = value as NoteData;

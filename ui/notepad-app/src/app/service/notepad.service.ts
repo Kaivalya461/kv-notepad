@@ -123,7 +123,8 @@ export class NotepadService {
       const noteId = docSnap.id;
       const remoteNote: NoteData = {
         content: data.content || '',
-        updatedAt: data.updatedAt || new Date().toISOString()
+        updatedAt: data.updatedAt || new Date().toISOString(),
+        isDeleted: data.isDeleted
       };
 
       const localNote = localNotes[noteId];
@@ -311,5 +312,14 @@ export class NotepadService {
         acc[id] = note;
         return acc;
       }, {} as Record<string, NoteData>);
+  }
+
+  /** Checks for updates from Firestore on demand (e.g., when window refocuses) */
+  async syncOnWindowFocus() {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      console.log("Window focused: Pulling latest changes from Firestore...");
+      await this.loadNotesFromFirestore(user.uid);
+    }
   }
 }

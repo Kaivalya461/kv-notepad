@@ -1,6 +1,6 @@
 // notepad.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EditorComponent } from '../editor/editor.component';
 import { FileListComponent } from '../file-list/file-list.component';
@@ -151,7 +151,7 @@ export class NotepadComponent implements OnInit {
       filename = `note${this.noteCounter}`;
     } while (this.files.hasOwnProperty(filename));
 
-    this.files[filename] = { content: '', updatedAt: new Date().toISOString() };
+    this.files[filename] = { content: '', updatedAt: new Date().toISOString(), isDeleted: false };
     this.activeFile = filename;
     this.noteText = '';
     this.forceSaveData();
@@ -167,7 +167,8 @@ export class NotepadComponent implements OnInit {
     if (this.activeFile) {
       this.files[this.activeFile] = {
         content: newText,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        isDeleted: false
       };
       this.noteText = newText;
       this.saveData();
@@ -230,5 +231,11 @@ export class NotepadComponent implements OnInit {
 
   get activeNotes(): Record<string, NoteData> {
     return this.notepadService.getActiveNotes();
+  }
+
+  // ✅ Automatically triggers when user brings focus back to this browser tab/window
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    this.notepadService.syncOnWindowFocus();
   }
 }
