@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from '@angular/fire/firestore';
+import { initializeApp } from 'firebase/app';
+import { Firestore, getFirestore, doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { firebaseConfig } from '../firebase.config';
 import { AuthService } from './auth.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -10,6 +12,8 @@ import { APP_CONSTANTS } from '../constant/app.constants';
   providedIn: 'root'
 })
 export class NotepadService {
+  private firestore: Firestore;
+
   private notesSubject = new BehaviorSubject<Record<string, NoteData>>({});
   notes$ = this.notesSubject.asObservable();
 
@@ -27,7 +31,11 @@ export class NotepadService {
   private darkModeSubject = new BehaviorSubject<boolean>(true);
   darkModeSubject$ = this.darkModeSubject.asObservable();
 
-  constructor(private firestore: Firestore, private authService: AuthService) {
+  constructor(private authService: AuthService) {
+    // Create a direct, isolated Firebase reference context explicitly for this service
+    const fbApp = initializeApp(firebaseConfig);
+    this.firestore = getFirestore(fbApp);
+
     this.syncTrigger.pipe(debounceTime(11000)).subscribe(() => {
       this.syncNotes();
     });
