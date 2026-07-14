@@ -21,7 +21,7 @@
         [isDarkMode]="isDarkMode"
         [files]="activeNotes"
         [activeFile]="activeFile"
-        (selectFile)="handleSelectFile($event)"
+        (selectFile)="updateActiveFile($event)"
         (newFile)="handleNewFile()"
         (deleteFile)="handleDeleteFile($event)">
       </app-file-list>
@@ -30,8 +30,10 @@
     <mat-sidenav-content>
       <app-editor
         [noteText]="noteText"
+        [updatedAt]="activeNoteUpdatedAt"
         (noteChange)="handleNoteChange($event)">
       </app-editor>
+      <app-history-viewer></app-history-viewer>
     </mat-sidenav-content>
   </mat-sidenav-container>
 

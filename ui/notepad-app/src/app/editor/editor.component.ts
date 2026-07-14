@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class EditorComponent implements OnInit, AfterViewInit {
   @Input() noteText: string = '';
+  @Input() updatedAt: string = '';
   @Output() noteChange = new EventEmitter<string>();
 
   @ViewChild('noteTextArea') textarea!: ElementRef<HTMLTextAreaElement>;

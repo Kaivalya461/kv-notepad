@@ -15,6 +15,7 @@ import { MigrationService } from '../service/migration.service';
 import { Subscription } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { ActionButtons } from '../action-buttons/action-buttons';
+import { HistoryViewerComponent } from '../history-viewer/history-viewer.component';
 
 @Component({
   selector: 'app-notepad',
@@ -27,7 +28,8 @@ import { ActionButtons } from '../action-buttons/action-buttons';
     ActionButtons,
     MatIconModule,
     MatSidenavModule,
-    MatToolbarModule
+    MatToolbarModule,
+    HistoryViewerComponent
   ],
   templateUrl: './notepad.component.html',
   styleUrl: './notepad.component.css'
@@ -36,6 +38,7 @@ export class NotepadComponent implements OnInit {
   files: Record<string, NoteData> = {};
   activeFile: string | null = null;
   noteText: string = '';
+  activeNoteUpdatedAt: string = '';
   noteCounter: number = 0;   // <-- track number of notes
   isDarkMode = true;
 
@@ -65,6 +68,7 @@ export class NotepadComponent implements OnInit {
         this.files = noteMap;
         if (this.activeFile && this.files[this.activeFile]) {
           this.noteText = this.files[this.activeFile].content;
+          this.activeNoteUpdatedAt = this.files[this.activeFile].updatedAt;
         }
       }),
       this.notepadService.noteCounter$.subscribe(counter => this.noteCounter = counter),
@@ -100,10 +104,12 @@ export class NotepadComponent implements OnInit {
     this.files = parsed.files || {};
     this.activeFile = parsed.activeFile || null;
     this.noteCounter = this.computeNoteCounter(parsed);
+    this.updateActiveFile(parsed.activeFile);
     console.log("NoteCounter Identified in loadData -> " + this.noteCounter);
 
     if (this.activeFile && this.files[this.activeFile]) {
       this.noteText = this.files[this.activeFile].content;
+      this.activeNoteUpdatedAt = this.files[this.activeFile].updatedAt;
     }
 
     // ✅ Push local notes into NotepadService so notesSubject is not empty
@@ -131,6 +137,7 @@ export class NotepadComponent implements OnInit {
   handleSelectFile(filename: string) {
     this.activeFile = filename;
     this.noteText = this.files[filename].content;
+    this.activeNoteUpdatedAt = this.files[filename].updatedAt;
     this.forceSaveData();
 
     if (this.isMobile && this.drawer) {
@@ -139,7 +146,10 @@ export class NotepadComponent implements OnInit {
   }
 
   handleNewFile() {
-    if (Object.keys(this.files).length >= 11) {
+    // ✅ Count only active files using the existing getter
+    const activeFilesCount = Object.keys(this.activeNotes).length;
+
+    if (activeFilesCount >= 11) {
       alert("You can only create up to 11 notes.");
       return;
     }
@@ -156,8 +166,6 @@ export class NotepadComponent implements OnInit {
     this.noteText = '';
     this.forceSaveData();
 
-    setTimeout(() => this.editor.focusTextarea(), 1000);
-
     if (this.isMobile && this.drawer) {
       this.drawer.close();
     }
@@ -166,11 +174,13 @@ export class NotepadComponent implements OnInit {
   handleNoteChange(newText: string) {
     if (this.activeFile) {
       this.files[this.activeFile] = {
+        // ✅ Copy all existing properties first (including .history!)
+        ...this.files[this.activeFile],
         content: newText,
         updatedAt: new Date().toISOString(),
         isDeleted: false
       };
-      this.noteText = newText;
+      // this.noteText = newText; // Not required, as this.noteText already subscribes note$.
       this.saveData();
     }
   }
@@ -194,9 +204,8 @@ export class NotepadComponent implements OnInit {
 
     // Update active file selection
     if (this.activeFile === filename) {
-      const remaining = Object.keys(this.files);
+      const remaining = Object.keys(this.activeNotes);
       this.activeFile = remaining.length ? remaining[0] : null;
-      this.noteText = this.activeFile ? this.files[this.activeFile].content : '';
     }
 
     this.forceSaveData();
@@ -209,6 +218,7 @@ export class NotepadComponent implements OnInit {
     this.files = {};
     this.activeFile = null;
     this.noteText = '';
+    this.activeNoteUpdatedAt = '';
     this.noteCounter = 0;
     localStorage.removeItem(APP_CONSTANTS.NOTEPAD_DATA);
 
@@ -237,5 +247,10 @@ export class NotepadComponent implements OnInit {
   @HostListener('window:focus')
   onWindowFocus(): void {
     this.notepadService.syncOnWindowFocus();
+  }
+
+  // Used for selecting different notes. handleSelectFile is triggered when activeFile$ is update in NotepadService.
+  updateActiveFile(newActiveFileName: string) {
+    this.notepadService.updateActiveFileName(newActiveFileName);
   }
 }

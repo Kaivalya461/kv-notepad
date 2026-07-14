@@ -28,7 +28,7 @@
 
 @media (min-width: 769px) {
   .editor-textarea {
-    width: 110ch;   /* roughly equal to 110 columns */
+    width: 120ch;   /* roughly equal to 110 columns */
     height: calc(40 * 1em); /* 40 rows, assuming line-height ≈ 1em */
     font-family: monospace; /* optional: aligns with cols calculation */
   }
@@ -43,7 +43,7 @@
   outline: none;
 }
 
-.char-counter {
+.char-counter, .last-updated {
   text-align: right;
   font-size: 0.9em;
   color: #666;
@@ -75,7 +75,7 @@
   box-sizing: border-box;
 }
 
-.mobile-footer .char-counter,
+.mobile-footer .char-counter .last-updated,
 .mobile-footer .limit-warning {
   padding-right: 8px;  /* ensures text doesn’t touch screen edge */
 }

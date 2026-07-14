@@ -1,0 +1,105 @@
+/* Re-use your primary layout settings */
+.editor {
+  padding: 10px;
+  flex: 1;
+  overflow: hidden;
+  height: auto;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* History header action bar */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 110ch;
+  margin-bottom: 8px;
+  padding: 4px 0;
+}
+
+.history-title {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #e65100; /* Subtle orange warning to indicate read-only view */
+  text-transform: uppercase;
+}
+
+.close-btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+
+.close-btn:hover {
+  background: #555;
+}
+
+/* Transform div container to behave exactly like your textarea */
+.readonly-box {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-y: auto;
+  background: transparent;
+  color: inherit;
+  border: none;
+}
+
+/* Match your Desktop Breakpoint Rules */
+@media (min-width: 769px) {
+  .editor-textarea {
+    width: 120ch;
+    height: calc(40 * 1em);
+    font-family: monospace;
+    caret-color: transparent;
+  }
+}
+
+/* Match your Mobile Breakpoint Rules */
+@media (max-width: 768px) {
+  .editor-textarea {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    font-size: small;
+    caret-color: transparent;
+  }
+  .editor {
+    height: 50vh;
+  }
+}
+
+.char-counter, .last-updated {
+  text-align: right;
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* Align dropdown and title label */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Style the native drop-down selector field to fit your dark/light modes */
+.history-dropdown {
+  color: inherit;
+  border: 1px solid #666;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.9em;
+  cursor: pointer;
+  outline: none;
+}
+
+.editor textarea:focus {
+  /* removes the blue border */
+  outline: none;
+}

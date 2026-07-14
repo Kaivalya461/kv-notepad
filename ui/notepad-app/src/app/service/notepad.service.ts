@@ -63,6 +63,11 @@ export class NotepadService {
   }
 
   updateNotes(files: Record<string, NoteData>, activeFile: string | null, noteCounter: number) {
+    // ✅ Process and inject daily history before saving
+    if (activeFile && files[activeFile]) {
+      files[activeFile] = this.processHistoryEntry(files[activeFile]);
+    }
+
     this.notesSubject.next(files);
     this.noteCounterSubject.next(noteCounter);
 
@@ -76,6 +81,11 @@ export class NotepadService {
   }
 
   forceUpdateNotes(files: Record<string, NoteData>, activeFile: string | null, noteCounter: number) {
+    // ✅ Process and inject daily history before saving
+    if (activeFile && files[activeFile]) {
+      files[activeFile] = this.processHistoryEntry(files[activeFile]);
+    }
+
     this.notesSubject.next(files);
     this.noteCounterSubject.next(noteCounter);
 
@@ -136,12 +146,14 @@ export class NotepadService {
       };
 
       const localNote = localNotes[noteId];
+      const currentTime = new Date().toISOString();
       if (!localNote) {
         // New note from Firestore
         mergedNotes[noteId] = remoteNote;
       } else {
         // Conflict resolution: prefer the newer one
         if (new Date(remoteNote.updatedAt) > new Date(localNote.updatedAt)) {
+          console.log(`[Conflict Resolution][${currentTime}] Note ID: ${noteId} - Finalized: REMOTE.`);
           mergedNotes[noteId] = remoteNote;
         } else {
           mergedNotes[noteId] = localNote;
@@ -326,8 +338,62 @@ export class NotepadService {
   async syncOnWindowFocus() {
     const user = this.authService.getCurrentUser();
     if (user) {
-      console.log("Window focused: Pulling latest changes from Firestore...");
+      const currentTime = new Date().toISOString();
+      console.log(`Window focused: Pulling latest changes from Firestore... [${currentTime}]`);
       await this.loadNotesFromFirestore(user.uid);
     }
+  }
+
+  /**
+   * Checks if the last update happened on a previous day.
+   * If true, logs that previous day's final state into the history array.
+   */
+  private processHistoryEntry(note: NoteData): NoteData {
+    // Deep clone or shallow copy the note to prevent mutation bugs
+    const updatedNote = { ...note };
+
+    // Format current time to local date string (YYYY-MM-DD)
+    const todayStr = new Date().toLocaleDateString('en-CA');
+
+    // Initialize history array if it doesn't exist yet
+    if (!updatedNote.history) {
+      updatedNote.history = [];
+    }
+
+    // If the note doesn't have an older updatedAt timestamp, we can't calculate history yet
+    if (!updatedNote.updatedAt) {
+      return updatedNote;
+    }
+
+    // Parse the last modified timestamp into a local date string (YYYY-MM-DD)
+    const lastUpdateDateStr = new Date(updatedNote.updatedAt).toLocaleDateString('en-CA');
+
+    // If the previous edit date is older than today, archive that day's final content
+    if (lastUpdateDateStr !== todayStr) {
+      const historyExistsForThatDay = updatedNote.history.some(h => h.date === lastUpdateDateStr);
+
+      if (!historyExistsForThatDay) {
+        updatedNote.history.push({
+          date: lastUpdateDateStr,
+          content: updatedNote.content, // Archive what the content WAS up until this point
+          createdAt: new Date().toISOString()
+        });
+
+        // Keep storage safe by capping daily history entries to 4 days
+        if (updatedNote.history.length > 4) {
+          updatedNote.history.shift();
+        }
+      }
+    }
+
+    return updatedNote;
+  }
+
+  getActiveFileName(): string | null {
+    return this.activeFileSubject.value; // Adapt based on your exact internal BehaviorSubject name
+  }
+
+  updateActiveFileName(newActiveFileName: string) {
+    this.activeFileSubject.next(newActiveFileName);
   }
 }

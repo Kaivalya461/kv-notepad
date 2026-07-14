@@ -16,4 +16,11 @@
     <mat-icon *ngIf="isOnline && user">cloud_done</mat-icon>
     <mat-icon *ngIf="isOnline && !user">cloud_queue</mat-icon>
   </button>
+
+  <!-- ✅ Note History Toggle Button -->
+  <button class="history-toggle-btn"
+          (click)="toggleHistoryMode()"
+          title="Show Note History">
+    <mat-icon>history</mat-icon>
+  </button>
 </div>

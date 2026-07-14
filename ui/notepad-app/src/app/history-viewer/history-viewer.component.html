@@ -1,0 +1,37 @@
+<div class="editor history-mode" *ngIf="currentVersion">
+  <div class="history-header">
+    <div class="header-left">
+      <span class="history-title">Viewing History:</span>
+
+      <!-- Embedded Dropdown Picker -->
+      <ng-container *ngIf="availableHistory$ | async as historyList">
+        <select
+          [value]="currentVersion.date"
+          (change)="onDropdownChange($event, historyList)"
+          class="history-dropdown">
+          <!-- Display newest snapshot dates at the top of the list -->
+          <option *ngFor="let version of historyList.slice().reverse()" [value]="version.date">
+            {{ version.date | date:'MMM dd, yyyy' }}
+          </option>
+        </select>
+      </ng-container>
+    </div>
+
+    <button class="close-btn" (click)="closePreview()">Close Preview</button>
+  </div>
+
+  <textarea
+    [value]="currentVersion.content || '(Empty Note)'"
+    readonly
+    class="editor-textarea">
+  </textarea>
+
+  <div class="desktop-counter" *ngIf="!isMobile">
+    <div class="last-updated">
+      Snapshot Date: {{ currentVersion.date | date:'MMM dd, yyyy' }}
+    </div>
+    <div class="char-counter">
+      {{ currentVersion.content.length }} characters
+    </div>
+  </div>
+</div>
